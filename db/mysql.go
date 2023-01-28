@@ -40,6 +40,7 @@ type (
 		Preload(assoc string) ORM
 		Joins(assoc string) ORM
 		Ping() error
+		OnConflict(column, updates []string) ORM
 	}
 
 	mysqldb struct {
@@ -261,6 +262,25 @@ func (d *mysqldb) Preload(assoc string) ORM {
 func (d *mysqldb) Joins(assoc string) ORM {
 	var (
 		db  = d.db.Joins(assoc)
+		err = db.Error
+	)
+
+	return &mysqldb{db, err}
+}
+
+func (d *mysqldb) OnConflict(columns, updates []string) ORM {
+
+	conflictColumns := make([]clause.Column, 0)
+
+	for _, column := range columns {
+		conflictColumns = append(conflictColumns, clause.Column{Name: column})
+	}
+
+	var (
+		db = d.db.Clauses(clause.OnConflict{
+			Columns:   conflictColumns,
+			DoUpdates: clause.AssignmentColumns(updates),
+		})
 		err = db.Error
 	)
 
