@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"fmt"
 	"gorm.io/gorm/clause"
 	"time"
 
@@ -29,6 +30,7 @@ type (
 		OmitAssoc() ORM
 		Where(query interface{}, args ...interface{}) ORM
 		Order(value interface{}) ORM
+		OrderByField(field string, slice interface{}) ORM
 		Create(args interface{}) error
 		Update(args interface{}) error
 		UpdateColumns(args interface{}) error
@@ -280,6 +282,18 @@ func (d *mysqldb) OnConflict(columns, updates []string) ORM {
 		db = d.db.Clauses(clause.OnConflict{
 			Columns:   conflictColumns,
 			DoUpdates: clause.AssignmentColumns(updates),
+		})
+		err = db.Error
+	)
+
+	return &mysqldb{db, err}
+}
+
+func (d *mysqldb) OrderByField(field string, slice interface{}) ORM {
+
+	var (
+		db = d.db.Clauses(clause.OrderBy{
+			Expression: clause.Expr{SQL: fmt.Sprintf("FIELD(%s,?)", field), Vars: []interface{}{slice}, WithoutParentheses: true},
 		})
 		err = db.Error
 	)
