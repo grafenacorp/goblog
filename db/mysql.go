@@ -39,7 +39,7 @@ type (
 		Raw(query string, args ...interface{}) ORM
 		Exec(query string, args ...interface{}) ORM
 		Scan(object interface{}) error
-		Preload(assoc string) ORM
+		Preload(assoc string, args ...interface{}) ORM
 		Joins(assoc string) ORM
 		Ping() error
 		OnConflict(column, updates []string) ORM
@@ -252,9 +252,9 @@ func (d *mysqldb) Scan(object interface{}) error {
 	return db.Error
 }
 
-func (d *mysqldb) Preload(assoc string) ORM {
+func (d *mysqldb) Preload(assoc string, args ...interface{}) ORM {
 	var (
-		db  = d.db.Preload(assoc)
+		db  = d.db.Preload(assoc, args...)
 		err = db.Error
 	)
 
