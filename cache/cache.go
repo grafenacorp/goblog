@@ -10,6 +10,7 @@ import (
 type (
 	Cache interface {
 		Set(ctx context.Context, key string, value []byte) error
+		SetNX(ctx context.Context, key string, value interface{}, exp time.Duration) (bool, error)
 		SetExp(ctx context.Context, key string, value []byte, exp time.Duration) error
 		Get(ctx context.Context, key string, object interface{}) error
 		GetBytes(ctx context.Context, key string) ([]byte, error)
@@ -40,6 +41,13 @@ func (c *cch) SetExp(ctx context.Context, key string, value []byte, exp time.Dur
 		status = c.cache.Set(ctx, key, value, exp)
 	)
 	return status.Err()
+}
+
+func (c *cch) SetNX(ctx context.Context, key string, value interface{}, exp time.Duration) (bool, error) {
+	var (
+		status = c.cache.SetNX(ctx, key, value, exp)
+	)
+	return status.Result()
 }
 
 func (c *cch) Get(ctx context.Context, key string, object interface{}) error {
