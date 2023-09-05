@@ -2,6 +2,7 @@ package cache
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"time"
 
@@ -19,6 +20,25 @@ type (
 		cache *bigcache.BigCache
 	}
 )
+
+func (lc *localcache) SetNX(ctx context.Context, key string, value interface{}, exp time.Duration) (bool, error) {
+	value, err := lc.cache.Get(key)
+	if err == nil {
+		return false, nil
+	}
+
+	if !errors.Is(err, bigcache.ErrEntryNotFound) {
+		return false, err
+	}
+
+	bb, _ := json.Marshal(value)
+	err = lc.cache.Set(key, bb)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
 
 func (lc *localcache) Set(_ context.Context, key string, value []byte) error {
 	return lc.cache.Set(key, value)
