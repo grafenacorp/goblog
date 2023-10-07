@@ -19,6 +19,13 @@ type (
 		Keys(ctx context.Context, pattern string) ([]string, error)
 		Ping(ctx context.Context) error
 		Close() error
+		GetHashed() (CacheHashed, error)
+	}
+
+	CacheHashed interface {
+		HSet(ctx context.Context, key string, field string, val interface{}) error
+		HExist(ctx context.Context, key string, field string) (bool, error)
+		HGet(ctx context.Context, key string, field string, val interface{}) error
 	}
 
 	Option struct {
@@ -31,6 +38,22 @@ type (
 		cache *redis.Client
 	}
 )
+
+func (c *cch) HSet(ctx context.Context, key string, field string, val interface{}) error {
+	return c.cache.HSet(ctx, key, field, val).Err()
+}
+
+func (c *cch) HExist(ctx context.Context, key string, field string) (bool, error) {
+	return c.cache.HExists(ctx, key, field).Result()
+}
+
+func (c *cch) HGet(ctx context.Context, key string, field string, val interface{}) error {
+	return c.cache.HGet(ctx, key, field).Scan(val)
+}
+
+func (c *cch) GetHashed() (CacheHashed, error) {
+	return c, nil
+}
 
 func (c *cch) Set(ctx context.Context, key string, value []byte) error {
 	return c.SetExp(ctx, key, value, 0)

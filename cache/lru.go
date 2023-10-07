@@ -21,6 +21,10 @@ type (
 	}
 )
 
+func (lc *localcache) GetHashed() (CacheHashed, error) {
+	return nil, errors.New("hashed function is not implemented on local mem cache")
+}
+
 func (lc *localcache) SetNX(ctx context.Context, key string, value interface{}, exp time.Duration) (bool, error) {
 	value, err := lc.cache.Get(key)
 	if err == nil {
