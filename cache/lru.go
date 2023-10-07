@@ -60,6 +60,16 @@ func (lc *localcache) GetBytes(_ context.Context, key string) ([]byte, error) {
 	return lc.cache.Get(key)
 }
 
+func (lc *localcache) Del(ctx context.Context, keys ...string) error {
+	for _, key := range keys {
+		err := lc.cache.Delete(key)
+		if err != nil && !errors.Is(err, bigcache.ErrEntryNotFound) {
+			return err
+		}
+	}
+	return nil
+}
+
 func (lc *localcache) Incr(_ context.Context, key string) error {
 	return errors.New("Incr not implemented for local mem cache")
 }
