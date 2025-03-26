@@ -2,6 +2,7 @@ package cache
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -30,13 +31,18 @@ type (
 	}
 
 	Option struct {
-		Address, UserName, Password                        string
-		DB, PoolSize, MinIdleConn                          int
+		Addresses []string
+		// deprecated: use Addresses instead. When Addresses only one will use standalone redis else will use redis cluster
+		Address            string
+		UserName, Password string
+		// DB only used when using redis standalone
+		DB                                                 int
+		PoolSize, MinIdleConn                              int
 		DialTimeout, ReadTimeout, WriteTimeout, MaxConnAge time.Duration
 	}
 
 	cch struct {
-		cache *redis.Client
+		cache redis.UniversalClient
 	}
 )
 
@@ -131,11 +137,30 @@ func (c *cch) Close() error {
 }
 
 func New(option *Option) (Cache, error) {
-	client := redis.NewClient(&redis.Options{
-		Addr:         option.Address,
+	if len(option.Addresses) == 1 {
+		client := redis.NewClient(&redis.Options{
+			Addr:         option.Addresses[0],
+			Username:     option.UserName,
+			Password:     option.Password,
+			DB:           option.DB,
+			DialTimeout:  option.DialTimeout,
+			ReadTimeout:  option.ReadTimeout,
+			WriteTimeout: option.WriteTimeout,
+			MaxConnAge:   option.MaxConnAge,
+			PoolSize:     option.PoolSize,
+			MinIdleConns: option.MinIdleConn,
+		})
+		return &cch{client}, nil
+	}
+
+	if option.DB > 0 {
+		return nil, errors.New("unsupported db option on cluster redis")
+	}
+
+	client := redis.NewClusterClient(&redis.ClusterOptions{
+		Addrs:        option.Addresses,
 		Username:     option.UserName,
 		Password:     option.Password,
-		DB:           option.DB,
 		DialTimeout:  option.DialTimeout,
 		ReadTimeout:  option.ReadTimeout,
 		WriteTimeout: option.WriteTimeout,
