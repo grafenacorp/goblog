@@ -55,6 +55,8 @@ type (
 		MaxLifeTimeConnection                time.Duration
 		MaxIdleConnection, MaxOpenConnection int
 		Logger                               glog.Logger
+		UsePreparedStmt                      bool
+		SkipDefaultTransaction               bool
 	}
 
 	SqlServerOption struct {
@@ -315,7 +317,10 @@ func (d *mysqldb) Ping() error {
 
 func NewMySql(option *MySqlOption) (ORM, error) {
 	var (
-		opts = &gorm.Config{}
+		opts = &gorm.Config{
+			PrepareStmt:            option.UsePreparedStmt,
+			SkipDefaultTransaction: option.SkipDefaultTransaction,
+		}
 	)
 
 	if option.Logger != nil {
