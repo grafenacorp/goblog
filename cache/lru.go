@@ -21,6 +21,11 @@ type (
 	}
 )
 
+func (lc *localcache) SetAnyExp(_ context.Context, key string, value interface{}, exp time.Duration) error {
+	bb, _ := json.Marshal(value)
+	return lc.cache.Set(key, bb)
+}
+
 func (lc *localcache) GetHashed() (CacheHashed, error) {
 	return nil, errors.New("hashed function is not implemented on local mem cache")
 }
