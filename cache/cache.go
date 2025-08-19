@@ -16,6 +16,7 @@ type (
 		SetExp(ctx context.Context, key string, value []byte, exp time.Duration) error
 		Get(ctx context.Context, key string, object interface{}) error
 		GetBytes(ctx context.Context, key string) ([]byte, error)
+		MGet(ctx context.Context, keys []string, object interface{}) ([]string, error)
 		Del(ctx context.Context, keys ...string) error
 		Incr(ctx context.Context, key string) error
 		Decr(ctx context.Context, key string) error
@@ -110,6 +111,35 @@ func (c *cch) GetBytes(ctx context.Context, key string) ([]byte, error) {
 	}
 
 	return status.Bytes()
+}
+
+// MGet retrieves multiple keys from the cache and scans the results into the provided object.
+// It will write found data to object, and return list of not found keys.
+func (c *cch) MGet(ctx context.Context, keys []string, object interface{}) ([]string, error) {
+	res, err := c.cache.MGet(ctx, keys...).Result()
+	if err != nil {
+		return keys, err
+	}
+
+	// because MGet returns []interface{} and do not implement ScanSlice
+	// convert is to []string and wrap it as StringSliceCmd instead
+	resultValues := make([]string, 0, len(res))
+	keysNotFound := make([]string, 0, len(keys))
+	for i := range res {
+		v, ok := res[i].(string)
+		if !ok {
+			keysNotFound = append(keysNotFound, keys[i])
+			continue
+		}
+		resultValues = append(resultValues, v)
+	}
+	wrapper := redis.NewStringSliceCmd(ctx)
+	wrapper.SetVal(resultValues)
+	if err := wrapper.ScanSlice(object); err != nil {
+		return keys, err
+	}
+
+	return keysNotFound, nil
 }
 
 func (c *cch) Del(ctx context.Context, keys ...string) error {
