@@ -124,11 +124,11 @@ func (c *cch) MGet(ctx context.Context, keys []string, object interface{}) ([]st
 	// because MGet returns []interface{} and do not implement ScanSlice
 	// convert is to []string and wrap it as StringSliceCmd instead
 	tmp := make([]string, 0, len(res))
-	notFound := make([]string, 0, len(keys))
+	keysNotFound := make([]string, 0, len(keys))
 	for i := range res {
 		v, ok := res[i].(string)
 		if !ok {
-			notFound = append(notFound, keys[i])
+			keysNotFound = append(keysNotFound, keys[i])
 			continue
 		}
 		tmp = append(tmp, v)
@@ -139,7 +139,7 @@ func (c *cch) MGet(ctx context.Context, keys []string, object interface{}) ([]st
 		return keys, err
 	}
 
-	return notFound, nil
+	return keysNotFound, nil
 }
 
 func (c *cch) Del(ctx context.Context, keys ...string) error {
