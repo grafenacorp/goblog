@@ -65,7 +65,7 @@ func (lc *localcache) GetBytes(_ context.Context, key string) ([]byte, error) {
 	return lc.cache.Get(key)
 }
 
-func (lc *localcache) MGet(_ context.Context, keys []string) ([]interface{}, error) {
+func (lc *localcache) MGet(_ context.Context, keys []string, object interface{}) ([]string, error) {
 	return nil, errors.New("MGet not implemented for local mem cache")
 }
 
