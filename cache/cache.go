@@ -16,7 +16,7 @@ type (
 		SetExp(ctx context.Context, key string, value []byte, exp time.Duration) error
 		Get(ctx context.Context, key string, object interface{}) error
 		GetBytes(ctx context.Context, key string) ([]byte, error)
-		MGet(ctx context.Context, keys []string, object interface{}) error
+		MGet(ctx context.Context, keys []string) ([]interface{}, error)
 		Del(ctx context.Context, keys ...string) error
 		Incr(ctx context.Context, key string) error
 		Decr(ctx context.Context, key string) error
@@ -113,16 +113,13 @@ func (c *cch) GetBytes(ctx context.Context, key string) ([]byte, error) {
 	return status.Bytes()
 }
 
-func (c *cch) MGet(ctx context.Context, keys []string, object interface{}) error {
-	var (
-		status = c.cache.MGet(ctx, keys...)
-	)
-
-	if err := status.Err(); err != nil {
-		return err
+func (c *cch) MGet(ctx context.Context, keys []string) ([]interface{}, error) {
+	res, err := c.cache.MGet(ctx, keys...).Result()
+	if err != nil {
+		return nil, err
 	}
 
-	return status.Scan(object)
+	return res, nil
 }
 
 func (c *cch) Del(ctx context.Context, keys ...string) error {
