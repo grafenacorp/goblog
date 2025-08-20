@@ -21,7 +21,9 @@ type (
 	}
 )
 
-func (lc *localcache) SetAnyExp(_ context.Context, key string, value interface{}, exp time.Duration) error {
+// TODO: should we remove this instead ? since it was not add expiry
+
+func (lc *localcache) SetAnyExp(_ context.Context, key string, value interface{}, _ time.Duration) error {
 	bb, _ := json.Marshal(value)
 	return lc.cache.Set(key, bb)
 }
@@ -97,6 +99,25 @@ func (lc *localcache) Ping(_ context.Context) error {
 
 func (lc *localcache) Close() error {
 	return lc.cache.Close()
+}
+
+func (lc *localcache) SetExpPipe(_ context.Context, kv map[string]any, _ time.Duration) error {
+	var multierror error
+	var errs []error
+
+	for key, value := range kv {
+		serialized, _ := json.Marshal(value)
+		if err := lc.cache.Set(key, serialized); err != nil {
+			errs = append(errs, err)
+		}
+	}
+
+	if len(errs) > 0 {
+		multierror = errors.New("[lru] some key failed to set")
+		multierror = errors.Join(append([]error{multierror}, errs...)...)
+	}
+
+	return multierror
 }
 
 func NewLocalMemCache(opts *LocalMemCacheOptions) (Cache, error) {

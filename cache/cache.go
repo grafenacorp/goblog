@@ -14,6 +14,7 @@ type (
 		SetNX(ctx context.Context, key string, value interface{}, exp time.Duration) (bool, error)
 		SetAnyExp(ctx context.Context, key string, value interface{}, exp time.Duration) error
 		SetExp(ctx context.Context, key string, value []byte, exp time.Duration) error
+		SetExpPipe(ctx context.Context, kv map[string]any, exp time.Duration) error
 		Get(ctx context.Context, key string, object interface{}) error
 		GetBytes(ctx context.Context, key string) ([]byte, error)
 		MGet(ctx context.Context, keys []string, object interface{}) ([]string, error)
@@ -140,6 +141,29 @@ func (c *cch) MGet(ctx context.Context, keys []string, object interface{}) ([]st
 	}
 
 	return keysNotFound, nil
+}
+
+func (c *cch) SetExpPipe(ctx context.Context, kv map[string]any, exp time.Duration) error {
+	var errs []error
+	var multierr error
+
+	c.cache.Pipelined(ctx, func(pipe redis.Pipeliner) error {
+		for key, value := range kv {
+			if err := pipe.SetEX(ctx, key, value, exp).Err(); err != nil {
+				errs = append(errs, err)
+			}
+		}
+
+		if len(errs) > 0 {
+			errs = append([]error{errors.New("error occurred when run SetExpPipe")}, errs...)
+			multierr = errors.Join(errs...)
+			return multierr
+		}
+
+		return nil
+	})
+
+	return multierr
 }
 
 func (c *cch) Del(ctx context.Context, keys ...string) error {
