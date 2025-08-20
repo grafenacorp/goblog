@@ -3,6 +3,7 @@ package cache
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -150,7 +151,7 @@ func (c *cch) SetExpPipe(ctx context.Context, kv map[string]any, exp time.Durati
 	c.cache.Pipelined(ctx, func(pipe redis.Pipeliner) error {
 		for key, value := range kv {
 			if err := pipe.SetEX(ctx, key, value, exp).Err(); err != nil {
-				errs = append(errs, err)
+				errs = append(errs, fmt.Errorf("%s failed to set: %w", key, err))
 			}
 		}
 

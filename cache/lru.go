@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/allegro/bigcache/v3"
@@ -108,7 +109,7 @@ func (lc *localcache) SetExpPipe(_ context.Context, kv map[string]any, _ time.Du
 	for key, value := range kv {
 		serialized, _ := json.Marshal(value)
 		if err := lc.cache.Set(key, serialized); err != nil {
-			errs = append(errs, err)
+			errs = append(errs, fmt.Errorf("%s failed to set: %w", key, err))
 		}
 	}
 
