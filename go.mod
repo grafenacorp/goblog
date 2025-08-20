@@ -1,6 +1,6 @@
 module github.com/digitalysin/goblog
 
-go 1.17
+go 1.24
 
 require (
 	github.com/BurntSushi/toml v0.3.1 // indirect
@@ -13,10 +13,10 @@ require (
 	github.com/jlaffaye/ftp v0.0.0-20220524001917-dfa1e758f3af
 	github.com/joho/godotenv v1.4.0
 	github.com/kelseyhightower/envconfig v1.4.0
-	github.com/klauspost/compress v1.12.2 // indirect
+	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/mtojek/localserver v0.0.0-20150924184226-6c20f5bb2792 // indirect
-	github.com/nats-io/nats-server/v2 v2.3.2 // indirect
-	github.com/nats-io/nats.go v1.16.0
+	github.com/nats-io/nats-server/v2 v2.11.0-preview.2 // indirect
+	github.com/nats-io/nats.go v1.39.1
 	github.com/sirupsen/logrus v1.9.2
 	github.com/stretchr/testify v1.8.3 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
@@ -42,16 +42,21 @@ require (
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/golang-sql/civil v0.0.0-20190719163853-cb61b32ac6fe // indirect
 	github.com/golang-sql/sqlexp v0.1.0 // indirect
+	github.com/google/go-tpm v0.9.3 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/nats-io/nkeys v0.3.0 // indirect
+	github.com/minio/highwayhash v1.0.3 // indirect
+	github.com/nats-io/jwt/v2 v2.7.3 // indirect
+	github.com/nats-io/nkeys v0.4.10 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
 	go.opentelemetry.io/otel/metric v1.16.0 // indirect
-	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
-	golang.org/x/sys v0.8.0 // indirect
+	go.uber.org/automaxprocs v1.6.0 // indirect
+	golang.org/x/crypto v0.35.0 // indirect
+	golang.org/x/sys v0.31.0 // indirect
+	golang.org/x/time v0.11.0 // indirect
 )
