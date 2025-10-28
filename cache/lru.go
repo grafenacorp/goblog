@@ -121,6 +121,10 @@ func (lc *localcache) SetExpPipe(_ context.Context, kv map[string]any, _ time.Du
 	return multierror
 }
 
+func (lc *localcache) IncrWithResult(_ context.Context, key string) (int64, error) {
+	return 0, errors.New("IncrWithResult not implemented for local mem cache")
+}
+
 func NewLocalMemCache(opts *LocalMemCacheOptions) (Cache, error) {
 	if opts.ExpiredInSecond <= 0 {
 		return nil, errors.New("expired must => 0")

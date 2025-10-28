@@ -21,6 +21,7 @@ type (
 		MGet(ctx context.Context, keys []string, object interface{}) ([]string, error)
 		Del(ctx context.Context, keys ...string) error
 		Incr(ctx context.Context, key string) error
+		IncrWithResult(ctx context.Context, key string) (int64, error)
 		Decr(ctx context.Context, key string) error
 		Keys(ctx context.Context, pattern string) ([]string, error)
 		Ping(ctx context.Context) error
@@ -177,6 +178,10 @@ func (c *cch) Del(ctx context.Context, keys ...string) error {
 
 func (c *cch) Incr(ctx context.Context, key string) error {
 	return c.cache.Incr(ctx, key).Err()
+}
+
+func (c *cch) IncrWithResult(ctx context.Context, key string) (int64, error) {
+	return c.cache.Incr(ctx, key).Result()
 }
 
 func (c *cch) Decr(ctx context.Context, key string) error {
